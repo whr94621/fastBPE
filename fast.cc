@@ -336,11 +336,14 @@ void learnbpe(const uint32_t kNPairs, const char *inputFile1,
                   where_to_update);
   }
   find_maxp(contiguous_counts, max_p, max_c);
+
+  // compatible to subword-nmt version 2
+  cout << "#version: 0.2" << endl;
+
   for (int i = 0; i < kNPairs; i++) {
     // create new token for pair. replace
     auto new_token = int_to_token[max_p.first] + int_to_token[max_p.second];
-    cout << int_to_token[max_p.first] << " " << int_to_token[max_p.second]
-         << " " << max_c << endl;
+    cout << int_to_token[max_p.first] << " " << int_to_token[max_p.second] << endl;
 
     uint32_t new_token_id = int_to_token.size();
     int_to_token.push_back(new_token);
@@ -455,10 +458,13 @@ void readCodes(const char *fp, unordered_map<tps, uint32_t, pair_hash> &codes,
   }
   fprintf(stderr, "Loading codes from %s ...\n", fp);
   string line;
+
+  getline(file, line); // skip the first line, which is the version of bpe codes.
+
   while (getline(file, line)) {
     vector<string> splits;
     split(splits, line, ' ');
-    assert(splits.size() == 3);
+    assert(splits.size() == 2);
     auto pair = make_pair(splits[0], splits[1]);
     string concat = splits[0] + splits[1];
     assert(codes.find(pair) == codes.end());
